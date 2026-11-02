@@ -1,0 +1,43 @@
+
+name: VRX CRASHER MULTI BUILD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK ${{ matrix.number }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 50
+      matrix:
+        number: [1, 2, 3, 4, 5]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK-${{ matrix.number }}
+          path: build/app/outputs/flutter-apk/app-release.apk
